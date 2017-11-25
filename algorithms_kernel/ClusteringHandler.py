@@ -458,7 +458,7 @@ class ClusteringHandlerBOGMM(ClusteringHandlerBODM):
         return prob
 
     @staticmethod
-    def EM_Solution(source_data, k, args):
+    def EM_Solution(source_data, k, args, centers_set, data_id_set, priors_set, sigma_set):
 
         '''
         Input:
@@ -521,6 +521,10 @@ class ClusteringHandlerBOGMM(ClusteringHandlerBODM):
                 val = ClusteringHandlerBOGMM.set_label(probability_i_x[i])
                 if val > -1:
                     label[i, 0] = val
+            centers_set.append(center)
+            data_id_set.append(label)
+            sigma_set.append(sigma)
+            priors_set.append(priors)
 
             sy, val = ClusteringHandlerBOGMM.stop_condition(source_data, dynamic_k, mu, sigma, priors, old_likelihood,
                                                             likelihood_ratio_threshold, n_step - args['max_step'])
