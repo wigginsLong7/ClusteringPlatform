@@ -7,3 +7,4 @@ class StoreKernel:
         self.data_id_set = []
         self.sigma_set = []
         self.prior_set = []
+        self.likelihood_set = []
