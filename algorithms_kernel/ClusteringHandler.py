@@ -252,7 +252,7 @@ class SpectralClustering(ClusteringHandlerBOO):
     def get_closest_k_element_on_similar_graph(w, args):
 
         sub_e = w
-        k_value = args['args1']
+        k_value = args['args'][0]
         k_index_set = []
         while k_value > 0:
             max_index = np.where(sub_e == sub_e.max())[1]
@@ -273,8 +273,8 @@ class SpectralClustering(ClusteringHandlerBOO):
             return []
         s = w.shape
         if args['mode'] == AlgorithmsEnum.SPECTRAL_CLUSTERING_ELISION:
-            w[w < args['args1']] = 0
-            w[w >= args['args1']] = 1
+            w[w < args['args'][0]] = 0
+            w[w >= args['args'][0]] = 1
             return w
         elif args['mode'] == AlgorithmsEnum.SPECTRAL_CLUSTERING_KNN:  #KNN
             for i in range(s[0]):
@@ -352,8 +352,8 @@ class ClusteringHandlerBOGMM(ClusteringHandlerBODM):
 
     @staticmethod
     def return_parameters_args():
-        a = {'mode': AlgorithmsEnum.EM_MODE, 'max_step': 100, 'seed_num': 1, 'prior_threshold': 0.1, 'args1': 0,
-             'args2': 0, 'args3': 0, 'args4': 0, 'now_step': -1, 'n_free_para': -1}
+        a = {'mode': AlgorithmsEnum.EM_MODE, 'max_step': 100, 'seed_num': 1, 'prior_threshold': 0.1, 'args': [0, 0, 0, 0]
+             , 'now_step': -1, 'n_free_para': -1}
         return a
 
     @staticmethod
@@ -458,7 +458,7 @@ class ClusteringHandlerBOGMM(ClusteringHandlerBODM):
         return prob
 
     @staticmethod
-    def EM_Solution(source_data, k, args, centers_set, data_id_set, priors_set, sigma_set):
+    def EM_Solution(source_data, k, args, centers_set, data_id_set, priors_set, sigma_set,likelihood_set):
 
         '''
         Input:
@@ -530,6 +530,7 @@ class ClusteringHandlerBOGMM(ClusteringHandlerBODM):
                                                             likelihood_ratio_threshold, n_step - args['max_step'])
             if val != -1:
                 old_likelihood = val
+            likelihood_set.append(old_likelihood)
             if not sy:
                 break
             n_step += 1
@@ -545,7 +546,7 @@ class ClusteringHandlerBOGMM(ClusteringHandlerBODM):
         s = probability_x_i.shape
         t = priors.shape
         probability_i_x_temp_no_eta = np.multiply(np.tile(priors, (s[0], 1)), probability_x_i)
-        power_index = 1.0 + (1.0 / args['args1'])
+        power_index = 1.0 + (1.0 / float(args['args'][0]))
         probability_i_x_temp = np.power(probability_i_x_temp_no_eta, power_index)
         for i in range(s[0]):
             if probability_i_x_temp[i][np.isinf(probability_i_x_temp[i])].size > 0 and \
@@ -609,7 +610,7 @@ class ClusteringHandlerBOGMM(ClusteringHandlerBODM):
                     max_index2 = np.where(temp_pix[i] == probability_i_x[i].max())[1]
                     if len(max_index2) >= 1:
                         f_index_2 = random.sample(set(max_index2), 1)[0]
-                        temp_pix[i, f_index_2] = -1 * args['args1']
+                        temp_pix[i, f_index_2] = -1 * args['args'][0]
                     else:
                         return False
                     temp_pix[i, f_index] = 1
